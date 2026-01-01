@@ -5,7 +5,7 @@ const SEQUENCE_LENGTH = 4;
 const MAX_ATTEMPTS = 8;
 
 // State
-let secretSequence = [];
+let secretSequences = [];
 let currentGuess = [ null, null, null, null ];
 let attemptsCount = 0;
 let activeSlotIndex = 0;
@@ -18,9 +18,53 @@ const overlay = document.getElementById("overlay");
 const resultIcon = document.getElementById("result-icon");
 const answerReveal = document.getElementById("answer-reveal");
 
+function getAllArragement(set = [ 1, 2 ]) {
+  return set.length == 1
+             ? [ set ]
+             : set.map((_v,
+                        idx) => [...set.slice(0, idx), ...set.slice(idx + 1)])
+                   .map(getAllArragement)
+                   .map((subsets, index) => subsets.map(
+                            (subset, _i) => [set[index], ...subset]))
+                   .flat();
+}
+
+function randomlizeList(list = [ 1, 2, 3, 4 ]) {
+  let remainList = Array.from(list);
+  let newList = [];
+  for (let i = 0; i < list.length; i++) {
+    let idx = Math.floor(Math.random() * remainList.length);
+    newList.push(remainList[idx]);
+    remainList = [...remainList.slice(0, idx), ...remainList.slice(idx + 1) ];
+  }
+  return newList;
+}
+
+/*
+ * global secretSequences will be change
+ * Return: right num
+ */
+function checkAnswer(answer = []) {
+  var numMatch = (l) => {
+    let num = 0;
+    for (let i = 0; i < answer.length; i++)
+      if (answer[i] == l[i])
+        num++;
+    return num;
+  };
+  var s0numMatch = numMatch(secretSequences[0]);
+  if (s0numMatch == answer.length && secretSequences.length > 1) {
+    secretSequences = secretSequences.slice(1);
+    s0numMatch = numMatch(secretSequences[0]);
+  }
+  secretSequences =
+      secretSequences.filter((list) => numMatch(list) == s0numMatch);
+  return s0numMatch;
+}
+
 function initGame() {
   // Reset State
-  secretSequence = generateSequence();
+  secretSequences = randomlizeList(getAllArragement(generateSequence()));
   currentGuess = [ null, null, null, null ];
   attemptsCount = 0;
   activeSlotIndex = 0;
@@ -37,7 +81,6 @@ function initGame() {
 
 function generateSequence() {
   let pool = Array.from({length : COLORS_COUNT}, (_, i) => i);
-  let sequence = [];
   // Fisher-Yates shuffle for uniqueness
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -108,12 +151,7 @@ function submitGuess() {
   }
 
   // Check logic
-  let correctPosition = 0;
-  for (let i = 0; i < SEQUENCE_LENGTH; i++) {
-    if (currentGuess[i] === secretSequence[i]) {
-      correctPosition++;
-    }
-  }
+  let correctPosition = checkAnswer(currentGuess);
 
   // Create History Row
   const rowDiv = document.createElement("div");
@@ -179,7 +217,7 @@ function endGame(win) {
     // Show Answer
     answerReveal.innerHTML = "";
     if (!win) {
-      secretSequence.forEach((color) => {
+      secretSequences[0].forEach((color) => {
         const s = document.createElement("div");
         s.className = `slot color-${color}`;
         answerReveal.appendChild(s);

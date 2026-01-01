@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Color Sequence Game</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="top-bar">
@@ -17,21 +17,23 @@
       </button>
     </div>
 
-    <div id="game-board"></div>
+    <div id="main-area">
+      <div id="game-board"></div>
 
-    <div id="input-area" style="margin-top: 15px">
-      <div class="row">
-        <div class="slots-container" id="current-slots">
-          <div class="slot active" onclick="selectSlot(0)"></div>
-          <div class="slot" onclick="selectSlot(1)"></div>
-          <div class="slot" onclick="selectSlot(2)"></div>
-          <div class="slot" onclick="selectSlot(3)"></div>
+      <div id="input-area" style="margin-top: 15px">
+        <div class="row">
+          <div class="slots-container" id="current-slots">
+            <div class="slot active" onclick="selectSlot(0)"></div>
+            <div class="slot" onclick="selectSlot(1)"></div>
+            <div class="slot" onclick="selectSlot(2)"></div>
+            <div class="slot" onclick="selectSlot(3)"></div>
+          </div>
+          <button class="btn" onclick="submitGuess()" id="submit-btn">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+          </button>
         </div>
-        <button class="btn" onclick="submitGuess()" id="submit-btn">
-          <svg viewBox="0 0 24 24">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-          </svg>
-        </button>
       </div>
     </div>
 
@@ -47,6 +49,6 @@
       </button>
     </div>
 
-    <script src="/script.js"></script>
+    <script src="./script.js"></script>
   </body>
 </html>

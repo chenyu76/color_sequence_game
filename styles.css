@@ -33,6 +33,12 @@ svg {
   fill: white;
 }
 
+#main-area {
+  display: flex;
+  align-items: left;
+  flex-direction: column;
+}
+
 #game-board {
   display: flex;
   flex-direction: column;
@@ -101,7 +107,6 @@ svg {
 .feedback {
   display: flex;
   gap: 4px;
-  width: 40px; /* fixed width for layout stability */
 }
 
 .dot {
