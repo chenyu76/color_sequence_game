@@ -138,6 +138,7 @@ svg {
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
+  margin: 12px;
 }
 
 .btn:hover {

@@ -1,7 +1,7 @@
 
 // Game Constants
-const COLORS_COUNT = 4; // Total available colors
-const SEQUENCE_LENGTH = 4;
+const COLORS_COUNT = 6; // Total available colors
+let SEQUENCE_LENGTH = 4;
 const MAX_ATTEMPTS = 8;
 
 // State
@@ -13,10 +13,22 @@ let isGameOver = false;
 
 // DOM Elements
 const board = document.getElementById("game-board");
-const currentSlots = document.querySelectorAll("#current-slots .slot");
+let currentSlots = document.querySelectorAll("#current-slots .slot");
 const overlay = document.getElementById("overlay");
 const resultIcon = document.getElementById("result-icon");
 const answerReveal = document.getElementById("answer-reveal");
+const inputSlotsContainer = document.getElementById("current-slots");
+
+function changeSlotsLength(newLength) {
+  SEQUENCE_LENGTH = newLength;
+  initGame();
+}
+
+function increaseSlotsLength(delta) {
+  SEQUENCE_LENGTH =
+      Math.min(Math.max(2, SEQUENCE_LENGTH + delta), COLORS_COUNT);
+  initGame();
+}
 
 function getAllArragement(set = [ 1, 2 ]) {
   return set.length == 1
@@ -65,7 +77,7 @@ function checkAnswer(answer = []) {
 function initGame() {
   // Reset State
   secretSequences = randomlizeList(getAllArragement(generateSequence()));
-  currentGuess = [ null, null, null, null ];
+  currentGuess = Array(SEQUENCE_LENGTH).fill(null);
   attemptsCount = 0;
   activeSlotIndex = 0;
   isGameOver = false;
@@ -74,13 +86,14 @@ function initGame() {
   board.innerHTML = ""; // Clear history
   overlay.classList.remove("show");
   updateCurrentRowUI();
+  updateInputUI();
 
   // Generate empty slots for history visualization
   // Optional: we could pre-render empty rows, but dynamic is fine.
 }
 
 function generateSequence() {
-  let pool = Array.from({length : COLORS_COUNT}, (_, i) => i);
+  let pool = Array.from({length : SEQUENCE_LENGTH}, (_, i) => i);
   // Fisher-Yates shuffle for uniqueness
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -104,27 +117,38 @@ function selectSlot(index) {
   updateCurrentRowUI();
 }
 
-// Enhanced Click Logic: Cycle color if clicking the active slot
-currentSlots.forEach((slot, index) => {
-  slot.addEventListener("click", () => {
-    if (activeSlotIndex === index) {
-      cycleColor(1);
-    } else {
-      activeSlotIndex = index;
-      updateCurrentRowUI();
-    }
-  });
-});
-
 function cycleColor(direction) {
   let val = currentGuess[activeSlotIndex];
   if (val === null) {
     val = 0;
   } else {
-    val = (val + direction + COLORS_COUNT) % COLORS_COUNT;
+    val = (val + direction + SEQUENCE_LENGTH) % SEQUENCE_LENGTH;
   }
   currentGuess[activeSlotIndex] = val;
   updateCurrentRowUI();
+}
+
+function updateInputUI() {
+  inputSlotsContainer.innerHTML = "";
+  for (let i = 0; i < SEQUENCE_LENGTH; i++) {
+    const slot = document.createElement("div");
+    slot.className = "slot" + (i === activeSlotIndex ? " active" : "");
+    slot.onclick = () => selectSlot(i);
+    inputSlotsContainer.appendChild(slot);
+  }
+
+  currentSlots = document.querySelectorAll("#current-slots .slot");
+  // Enhanced Click Logic: Cycle color if clicking the active slot
+  currentSlots.forEach((slot, index) => {
+    slot.addEventListener("click", () => {
+      if (activeSlotIndex === index) {
+        cycleColor(1);
+      } else {
+        activeSlotIndex = index;
+        updateCurrentRowUI();
+      }
+    });
+  });
 }
 
 function updateCurrentRowUI() {
